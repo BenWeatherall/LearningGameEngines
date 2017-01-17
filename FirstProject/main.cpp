@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "ObjectLoader.h"
+#include "ShaderLoader.h"
 
 // GLEW
 #define GLEW_STATIC
@@ -89,6 +90,8 @@ int main()
 		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
 		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
 	}
+
+	shaders* testShaders = load_shaders();
 
 	// Fragment Shader
 	GLuint fragmentShader;
