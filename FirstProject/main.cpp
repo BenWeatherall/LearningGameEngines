@@ -77,7 +77,6 @@ int main()
 		glfwTerminate();
 		return -1;
 	}
-	// TODO: Look into 'attaching windows'. Probably best done via multiple viewports eh?
 
 	// I.E This is where the following actions shall occur
 	glfwMakeContextCurrent(window);
@@ -169,7 +168,7 @@ int main()
 		glBindVertexArray(currentShape->VAO);
 
 		glBindBuffer(GL_ARRAY_BUFFER, currentShape->VBO);
-		glBufferData(GL_ARRAY_BUFFER, ShapeData->at(i)->size * sizeof(GLfloat), ShapeData->at(i)->data, GL_STATIC_DRAW); // TODO: Problem possibly here, is shape loading correctly?
+		glBufferData(GL_ARRAY_BUFFER, ShapeData->at(i)->size * sizeof(GLfloat), ShapeData->at(i)->data, GL_STATIC_DRAW);
 
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
 		glEnableVertexAttribArray(0);
@@ -239,8 +238,6 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 std::vector<coordinates*> * load_shapes()
 {
-	// TODO Get list of Shapes from Shapes Directory
-	// ./Shapes
 	const std::string dir = "Shapes\\";
 
 	std::vector<std::string> files;
@@ -297,6 +294,9 @@ std::vector<coordinates*> * load_shapes()
 
 			shapeBuf = new coordinates;
 			shapeBuf->container = new std::vector<GLfloat>;
+
+			// TODO: refactor into parser
+			// This is lovely but won't work for complex data. I need to build a parser if I want to have complex files
 			for (	std::string each; 
 					std::getline(fb, each, ' '); 
 					shapeBuf->container->push_back(GLfloat(std::stof(each)))
