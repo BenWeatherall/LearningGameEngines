@@ -1,3 +1,5 @@
+// TODO: Refactor into multiple files; This is getting rather fat!
+
 #if _WIN64 || _WIN32
 	#include <Windows.h>
 #elif linux
@@ -40,12 +42,14 @@ struct coordinates {
 	std::vector<GLfloat>* container;
 	GLfloat *data;
 	size_t size;
+	// TODO Carry shape name (Either via filename, OR Use first line of file for name
 };
 /* Buffer / Array data for shapes stored on GPU */
 struct VertexedShapes {
 	GLuint VAO;
 	GLuint VBO;
 	GLuint vertices;
+	// TODO Carry shape name should receive from coordinates
 };
 
 // Function Prototypes
@@ -197,6 +201,12 @@ int main()
 			RedBit = 0.0f;
 		}
 
+		/*	TODO: Implement a 'view object' system. 
+			On KeyPress (Say <ENTER>) call a new thread 
+			This thread lists files loaded and askes which asks for input
+			of which to load. On load the current object is replaced with
+			the selected object and the thread dies
+		*/
 		// Draw our first triangle
 		glUseProgram(shaderProgram);
 
@@ -281,9 +291,16 @@ std::vector<coordinates*> * load_shapes()
 		fb.open((dir + file), std::ios::in);
 
 		if (fb.is_open()) {
+			std::string ObjectName;
+			std::getline(fb, ObjectName);
+			std::cout << ObjectName << std::endl;
+
 			shapeBuf = new coordinates;
 			shapeBuf->container = new std::vector<GLfloat>;
-			for (std::string each; std::getline(fb, each, ' '); shapeBuf->container->push_back(GLfloat(std::stof(each))));
+			for (	std::string each; 
+					std::getline(fb, each, ' '); 
+					shapeBuf->container->push_back(GLfloat(std::stof(each)))
+			);
 
 			shapeBuf->data = shapeBuf->container->data();
 			shapeBuf->size = shapeBuf->container->size();
