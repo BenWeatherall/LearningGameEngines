@@ -1,7 +1,5 @@
 # GraphicsProject_01
 
-## Notes:
-
 **Standard**: C++11
 
 **Requires**: GLFW / GLEW and OpenGL driver (should be present with video card)
