@@ -29,3 +29,4 @@ struct shaders {
 shaders* load_shaders();
 void BuildVertexShader(GLuint * VertexShader, GLchar** SourceCode);
 void BuildFragmentShader(GLuint * FragmentShader, GLchar** SourceCode);
+GLuint BuildShaderProgram();

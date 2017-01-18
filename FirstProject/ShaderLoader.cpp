@@ -65,7 +65,7 @@ shaders * load_shaders()
 			in.seekg(0, std::ios::end);
 
 			int length = in.tellg();
-			GLchar * ShaderSourceCode = new GLchar [length];
+			GLchar * ShaderSourceCode = new GLchar [length+1]; // We are reading a c_string so make room for the \0
 
 			in.seekg(0, std::ios::beg);
 
@@ -76,6 +76,8 @@ shaders * load_shaders()
 			}
 
 			in.close();
+			ShaderSourceCode[length] = '\0'; // .read() doesn't add a \0, we need to add it ourselves
+
 
 			// Build Shaders
 			if (std::regex_match(file, std::regex(".*\\.vert"))) {
@@ -127,4 +129,32 @@ void BuildFragmentShader(GLuint * FragmentShader, GLchar** SourceCode)
 		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
 	}
 
+}
+
+GLuint BuildShaderProgram()
+{
+	shaders* LoadedShaders = load_shaders(); // TODO (since we are only passing around small values, this can be on the stack)
+
+	GLuint ShaderProgram;
+	ShaderProgram = glCreateProgram();
+
+	glAttachShader(ShaderProgram, LoadedShaders->vertexShader);
+	glAttachShader(ShaderProgram, LoadedShaders->fragmentShader);
+	glLinkProgram(ShaderProgram);
+
+	GLint success;
+	GLchar infoLog[512];
+
+	glGetProgramiv(ShaderProgram, GL_LINK_STATUS, &success);
+	if (!success) {
+		glGetProgramInfoLog(ShaderProgram, 512, NULL, infoLog);
+		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+	}
+
+	glDeleteShader(LoadedShaders->vertexShader);
+	glDeleteShader(LoadedShaders->fragmentShader);
+
+	delete LoadedShaders;
+
+	return ShaderProgram;
 }
