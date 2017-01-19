@@ -23,16 +23,36 @@ struct coordinates {
 	std::vector<GLfloat>* container;
 	GLfloat *data;
 	size_t size;
-	// TODO Carry shape name (Either via filename, OR Use first line of file for name
 };
 
 /* Buffer / Array data for shapes stored on GPU */
-struct VertexedShapes {
+struct VertexedShape {
+	std::string name;
 	GLuint VAO;
 	GLuint VBO;
+	GLuint EBO;
 	GLuint vertices;
 	// TODO Carry shape name should receive from coordinates
 };
 
 // Function Interface
 std::vector<coordinates*>* load_shapes();
+
+class LoadedVertexObjects {
+public:
+	LoadedVertexObjects(std::string);
+	~LoadedVertexObjects();
+	// Consider merging with constructor. 
+	// Expected behaviour would be to add contents of supplied dir to existing file. 
+	// Currently I believe this replaces it! Need to assess.
+	void LoadDirectory(std::string); 
+
+	std::vector<VertexedShape*> * GetShapes();
+
+private:
+	std::vector<coordinates*> * Coords; // Intended to be emptied after every LoadDirectory operation
+	std::vector<VertexedShape*> * VertexObjects;
+
+	std::vector<std::string> DirectoryContents(std::string);
+	void BuildVertexObjects();
+};

@@ -16,21 +16,6 @@
 // Window Dimensions
 const GLuint WIDTH = 800, HEIGHT = 600;
 
-// Shaders
-const GLchar* vertexShaderSource = "#version 330 core \n"
-	"layout(location = 0) in vec3 position;"
-	"void main()"
-	"{"
-		"gl_Position = vec4(position.x, position.y, position.z, 1.0);"
-	"}\n\0";
-
-const GLchar* fragmentShaderSource = "#version 330 core \n"
-	"out vec4 color;\n"
-	"void main()"
-	"{"
-		"color = vec4(1.0f, 0.5f, 0.2f, 1.0f);"
-	"}\n\0";
-
 // Function Prototypes
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
@@ -79,46 +64,11 @@ int main()
 	// Load Shaders into program
 	GLuint ShaderProgram = BuildShaderProgram();
 
-	/** Content **/
-	GLclampf RedBit = 0.0f;
-
 	// Load Shapes
-	std::vector<coordinates*>* ShapeData = load_shapes();
+	LoadedVertexObjects MeshData(".//Shapes//");
 
-	// Get number of shapes
-	const GLint ShapeCount = ShapeData->size();
-
-	// Define buffer object
-	std::vector<VertexedShapes*> StoredShapes;
-
-	VertexedShapes* currentShape;
-	for (int i = 0; i < ShapeCount; ++i) {
-		currentShape = new VertexedShapes;
-		
-		// Store the number of vertices for the shape (so we can easily call in future)
-		currentShape->vertices = ShapeData->at(i)->size / 3;
-
-		glGenVertexArrays(1, &(currentShape->VAO));
-		glGenBuffers(1, &(currentShape->VBO));
-
-		// Bind Vertex Array Object first, then bind vertex buffer and attribute pointer(s).
-		glBindVertexArray(currentShape->VAO);
-
-		glBindBuffer(GL_ARRAY_BUFFER, currentShape->VBO);
-		glBufferData(GL_ARRAY_BUFFER, ShapeData->at(i)->size * sizeof(GLfloat), ShapeData->at(i)->data, GL_STATIC_DRAW);
-
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
-		glEnableVertexAttribArray(0);
-
-		// Note that this is allowed, the call to glVertexAttribPointer registered VBO as the currently bound vertex buffer object so afterwards we can safely unbind
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-		glBindVertexArray(0); // Unbind VAO (it's always a good idea to unbind any buffer / array to prevent strange bugs)
-
-		StoredShapes.push_back(currentShape);
-
-		currentShape = nullptr;
-	}
+	/** Local Variables **/
+	GLclampf RedBit = 0.0f;
 
 	// Program Loop
 	while (!glfwWindowShouldClose(window))
@@ -143,22 +93,16 @@ int main()
 			of which to load. On load the current object is replaced with
 			the selected object and the thread dies
 		*/
-		// Draw our first triangle
 		glUseProgram(ShaderProgram);
 
-		for (int i = 0; i < ShapeCount; ++i) {
-			glBindVertexArray(StoredShapes[i]->VAO);
-			glDrawArrays(GL_TRIANGLES, 0, StoredShapes[i]->vertices);
+		for (unsigned int i = 0; i < MeshData.GetShapes()->size(); ++i) {
+			glBindVertexArray(MeshData.GetShapes()->at(i)->VAO);
+			glDrawArrays(GL_TRIANGLES, 0, MeshData.GetShapes()->at(i)->vertices);
 			glBindVertexArray(0);
 		}
 
 		// Swap Buffers
 		glfwSwapBuffers(window);
-	}
-
-	for (int i = 0; i < ShapeCount; ++i) {
-		glDeleteVertexArrays(1, &(StoredShapes[i]->VAO));
-		glDeleteBuffers(1, &(StoredShapes[i]->VBO));
 	}
 
 	glfwTerminate();
