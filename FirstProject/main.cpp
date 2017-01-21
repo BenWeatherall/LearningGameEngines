@@ -65,11 +65,7 @@ int main()
 	GLuint ShaderProgram = BuildShaderProgram();
 
 	// Load Shapes
-	#ifdef _WIN32 || _WIN64
-	LoadedVertexObjects MeshData(".//Shapes//");
-	#elif __linux__
 	LoadedVertexObjects MeshData("./Shapes/");
-	#endif
 
 	/** Local Variables **/
 	GLclampf RedBit = 0.0f;

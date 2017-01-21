@@ -8,10 +8,9 @@ shaders * load_shaders()
 
 
 	std::vector<std::string> files;
-
+	std::string dir = "./Shaders/";
 
 	#ifdef __linux__
-		std::string dir = "./Shaders/"; // We have different directory styles depending on the OS
 	
 		std::cout << "IN LINUX" << std::endl;
 		DIR *dp;
@@ -26,7 +25,6 @@ shaders * load_shaders()
 		}
 		closedir(dp);
 	#elif _WIN32 || _WIN64
-		std::string dir = ".\\Shaders\\";
 	
 		std::string searchPath = dir + "*";
 		std::cout << searchPath << std::endl;
@@ -64,7 +62,8 @@ shaders * load_shaders()
 		if (in) {
 			in.seekg(0, std::ios::end);
 
-			int length = in.tellg();
+			// TODO: Confirm I will never be dealing with a object file greater than MAX_INT bytes
+			int length = in.tellg(); // tellg can return up to a long long. It is meant to be able to return the MAXIMUM POSSIBLE filesize the OS can handle. 
 			GLchar * ShaderSourceCode = new GLchar [length+1]; // We are reading a c_string so make room for the \0
 
 			in.seekg(0, std::ios::beg);
