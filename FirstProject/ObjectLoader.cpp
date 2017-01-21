@@ -22,9 +22,12 @@ void LoadedVertexObjects::LoadDirectory(std::string dir)
 	std::vector<std::string> files = DirectoryContents(dir);
 
 	std::vector<coordinates*> * LoadedVertices = new std::vector<coordinates*>;
+	std::vector<elements*> * LoadedElements = new std::vector<elements*>;
 
 	std::ifstream fb; // FileBuffer
-	coordinates* CoordinateBuffer; //ShapeBuffer
+
+	coordinates* CoordinateBuffer;
+	elements* ElementBuffer;
 
 	for (std::string file : files) {
 		if (!std::regex_match(file, std::regex(".*\\.(dobj|obj)"))) {
@@ -36,82 +39,77 @@ void LoadedVertexObjects::LoadDirectory(std::string dir)
 		fb.open((dir + file), std::ios::in);
 
 		if (fb.is_open()) {
-			std::string ObjectName;
-			std::getline(fb, ObjectName);
-			std::cout << ObjectName << std::endl;
+			std::string ObjectName = file; // Save Object Name
+
+			// Initialise file buffers
+			std::string LineBuf;
+			std::stringstream ss;
+			std::string Unit;
 
 			CoordinateBuffer = new coordinates;
-			CoordinateBuffer->container = new std::vector<GLfloat>;
+			CoordinateBuffer->VertContainer = new std::vector<GLfloat>;
+			CoordinateBuffer->Name = ObjectName;
 
-			// TODO: refactor into parser
-			// This is lovely but won't work for complex data. I need to build a parser if I want to have complex files
-			for (std::string each;
-				std::getline(fb, each, ' ');
-				CoordinateBuffer->container->push_back(GLfloat(std::stof(each)))
-				);
+			ElementBuffer = new elements;
+			ElementBuffer->ElemContainer = new std::vector<GLuint>;
+			ElementBuffer->Name = ObjectName;
 
-			CoordinateBuffer->data = CoordinateBuffer->container->data();
-			CoordinateBuffer->size = CoordinateBuffer->container->size();
+			while (std::getline(fb, LineBuf)) {
+				// We want to easily break this up so turn the line into a string stream
+				ss.str(LineBuf);
+
+				switch (LineBuf[0])
+				{
+				case 'v':
+					// While this is small bit of code; it is used twice (or more) maybe move it into helper function?
+					// TODO: func to break ss into values and push into vector. IN (SS, *Vector, TYPE?), OUT Void
+					while (std::getline(ss, Unit, ' ')) {
+						if (!(isalpha(Unit[0]) || Unit.size() == 0)) { 
+							CoordinateBuffer->VertContainer->push_back(GLfloat(std::stof(Unit)));
+						}
+					}
+					break;
+				case 'p':
+					while (std::getline(ss, Unit, ' ')) {
+						if (!isalpha((Unit[0]))) {
+							ElementBuffer->ElemContainer->push_back(GLuint(std::stoi(Unit)));
+						}
+					}
+					break;
+				default:
+					break;
+				}
+				// You always need to clear stringstream: gets rid of all data and resets the getline method
+				ss.clear();
+			}
+
+			CoordinateBuffer->VertData = CoordinateBuffer->VertContainer->data();
+			CoordinateBuffer->VertSize = CoordinateBuffer->VertContainer->size();
+
+			ElementBuffer->ElemData = ElementBuffer->ElemContainer->data();
+			ElementBuffer->ElemSize = ElementBuffer->ElemContainer->size();
+			
 			LoadedVertices->push_back(CoordinateBuffer);
-
+			LoadedElements->push_back(ElementBuffer);
 			CoordinateBuffer = nullptr;
+			ElementBuffer = nullptr;
 		}
 		else {
 			std::cout << "Error: " << file << " failed to open" << std::endl;
 		}
+		
+
 
 		fb.close();
 
 	}
 
 	Coords = LoadedVertices;
+	Elems = LoadedElements;
 
 	// Build Collected Coords into Vertex Objects
 	BuildVertexObjects();
 
-}
-
-std::vector<std::string> LoadedVertexObjects::DirectoryContents(std::string dir)
-{
-	/* TODO: Dir addresses in Windows differs to linux. will need to change how dirs are handled for each system
-	Consider starting each relevant section with a replace where windows replaces '/' with '\\', and 
-	linux replaces '\\' with '/' */
-
-	std::vector<std::string> FileList;
-	#ifdef __linux__
-		DIR *dp;
-		struct dirent *dirp;
-		if ((dp = opendir(dir.c_str())) == NULL) {
-			std::cout << "Error (" << errno << ") opening " << dir << std::endl;
-			return FileList;
-		}
-
-		while ((dirp = readdir(dp)) != NULL) {
-			FileList.push_back(std::string(dirp->d_name));
-		}
-		closedir(dp);
-	#elif _WIN32 || _WIN64
-		std::string searchPath = dir + "*";
-		std::cout << searchPath << std::endl;
-
-		WIN32_FIND_DATA fd;
-		HANDLE hFind = ::FindFirstFile(searchPath.c_str(), &fd);
-
-		if (hFind != INVALID_HANDLE_VALUE) {
-			do {
-				if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
-					FileList.push_back(fd.cFileName);
-				}
-			} while (::FindNextFile(hFind, &fd));
-			::FindClose(hFind);
-		}
-		else {
-			std::cout << "INVALID_HANDLE_VALUE: " << GetLastError() << std::endl;
-			std::cout << "See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms681381(v=vs.85).aspx" << std::endl;
-		}
-	#endif
-
-	return FileList;
 }
 
 void LoadedVertexObjects::BuildVertexObjects()
@@ -120,18 +118,25 @@ void LoadedVertexObjects::BuildVertexObjects()
 	std::cout << "Number of Coordinates: " << Coords->size() << std::endl;
 	for (unsigned int i = 0; i < Coords->size(); ++i) {
 		currentShape = new VertexedShape;
+		currentShape->name = Coords->at(i)->Name;
 
 		// Store the number of vertices for the shape (so we can easily call in future)
-		currentShape->vertices = Coords->at(i)->size / 3;
+		currentShape->elements = Elems->at(i)->ElemSize;
 
 		glGenVertexArrays(1, &(currentShape->VAO));
 		glGenBuffers(1, &(currentShape->VBO));
+		glGenBuffers(1, &(currentShape->EBO));
 
-		// Bind Vertex Array Object first, then bind vertex buffer and attribute pointer(s).
+		// Bind Vertex Array Object first
 		glBindVertexArray(currentShape->VAO);
 
+		// Bind Vertex Buffer Object
 		glBindBuffer(GL_ARRAY_BUFFER, currentShape->VBO);
-		glBufferData(GL_ARRAY_BUFFER, Coords->at(i)->size * sizeof(GLfloat), Coords->at(i)->data, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, Coords->at(i)->VertSize * sizeof(GLfloat), Coords->at(i)->VertData, GL_STATIC_DRAW);
+
+		// Bind Element Buffer Object
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, currentShape->EBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, Elems->at(i)->ElemSize * sizeof(GLint), Elems->at(i)->ElemData, GL_STATIC_DRAW);
 
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
 		glEnableVertexAttribArray(0);

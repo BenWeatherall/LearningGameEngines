@@ -67,26 +67,37 @@ int main()
 	// Load Shapes
 	LoadedVertexObjects MeshData("./Shapes/");
 
-	/** Local Variables **/
-	GLclampf RedBit = 0.0f;
+	double lastTime = glfwGetTime();
+	int nbFrames = 0;
+
+	// Wireframe
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	// Program Loop
 	while (!glfwWindowShouldClose(window))
 	{
+		// Measure speed (http://www.opengl-tutorial.org/miscellaneous/an-fps-counter/)
+		double currentTime = glfwGetTime();
+		nbFrames++;
+		if (currentTime - lastTime >= 1.0) { // If last prinf() was more than 1 sec ago
+											 // printf and reset timer
+			printf("%f ms/frame\n", 1000.0 / double(nbFrames));
+			nbFrames = 0;
+			lastTime += 1.0;
+		}
+
 		// Check and call events
 		glfwPollEvents();
 
 		// Rendering Commands here
-		glClearColor(RedBit, 0.3f, 0.3f, 1.0f);
+		glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		
-		if (RedBit < 1.0f) {
-			RedBit += 0.001f;
-		}
-		else {
-			RedBit = 0.0f;
-		}
+		GLfloat timeValue = glfwGetTime();
+		GLfloat greenValue = (sin(timeValue*15) / 3) + 0.5;
+		GLint vertexColorLocation = glGetUniformLocation(ShaderProgram, "ourColor");
 
+		
 		/*	TODO: Implement a 'view object' system. 
 			On KeyPress (Say <ENTER>) call a new thread 
 			This thread lists files loaded and askes which asks for input
@@ -95,12 +106,13 @@ int main()
 		*/
 		glUseProgram(ShaderProgram);
 
+		glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+
 		for (unsigned int i = 0; i < MeshData.GetShapes()->size(); ++i) {
 			glBindVertexArray(MeshData.GetShapes()->at(i)->VAO);
-			glDrawArrays(GL_TRIANGLES, 0, MeshData.GetShapes()->at(i)->vertices);
+			glDrawElements(GL_TRIANGLES, MeshData.GetShapes()->at(i)->elements, GL_UNSIGNED_INT, 0);
 			glBindVertexArray(0);
 		}
-
 		// Swap Buffers
 		glfwSwapBuffers(window);
 	}

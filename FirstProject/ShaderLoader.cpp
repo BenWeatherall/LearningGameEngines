@@ -3,49 +3,11 @@
 // I will be using the algorithm shown at: http://insanecoding.blogspot.com.au/2011/11/how-to-read-in-file-in-c.html
 shaders * load_shaders()
 {
+	std::string dir = "./Shaders/";
 	shaders* LoadedShader = new shaders;
 
-
-
-	std::vector<std::string> files;
-	std::string dir = "./Shaders/";
-
-	#ifdef __linux__
+	std::vector<std::string> files = DirectoryContents(dir);
 	
-		std::cout << "IN LINUX" << std::endl;
-		DIR *dp;
-		struct dirent *dirp;
-		if ((dp = opendir(dir.c_str())) == NULL) {
-			std::cout << "Error (" << errno << ") opening " << dir << std::endl;
-			return nullptr; // TODO: We want this to throw a fit and ask for dif shader
-		}
-
-		while ((dirp = readdir(dp)) != NULL) {
-			files.push_back(std::string(dirp->d_name));
-		}
-		closedir(dp);
-	#elif _WIN32 || _WIN64
-	
-		std::string searchPath = dir + "*";
-		std::cout << searchPath << std::endl;
-
-		WIN32_FIND_DATA fd;
-		HANDLE hFind = ::FindFirstFile(searchPath.c_str(), &fd);
-
-		if (hFind != INVALID_HANDLE_VALUE) {
-			do {
-				if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
-					files.push_back(fd.cFileName);
-				}
-			} while (::FindNextFile(hFind, &fd));
-			::FindClose(hFind);
-		}
-		else {
-			std::cout << "INVALID_HANDLE_VALUE: " << GetLastError() << std::endl;
-			std::cout << "See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms681381(v=vs.85).aspx" << std::endl;
-		}
-	#endif
-
 	std::ifstream fb; // FileBuffer
 
 	// TODO: This will be repeated code; Need to fix

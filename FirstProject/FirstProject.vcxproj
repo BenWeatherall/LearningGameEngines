@@ -116,11 +116,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="File_IO.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ObjectLoader.cpp" />
     <ClCompile Include="ShaderLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="File_IO.h" />
     <ClInclude Include="ObjectLoader.h" />
     <ClInclude Include="ShaderLoader.h" />
   </ItemGroup>

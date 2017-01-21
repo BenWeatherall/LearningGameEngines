@@ -24,12 +24,18 @@
     <ClCompile Include="ShaderLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="File_IO.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ObjectLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ShaderLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="File_IO.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,16 +1,12 @@
 #pragma once
-#if _WIN64 || _WIN32
-#include <Windows.h>
-#elif __linux
-#include <sys/types.h>
-#include <dirent.h>
-#endif // _WIN32 || _WIN64
 
 #include <fstream>
 #include <string>
 #include <cerrno>
 #include <regex>
 #include <iostream>
+
+#include "File_IO.h"
 
 // GLEW
 #define GLEW_STATIC

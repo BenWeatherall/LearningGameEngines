@@ -1,16 +1,14 @@
 #pragma once
-#if _WIN64 || _WIN32
-	#include <Windows.h>
-#elif __linux__
-	#include <sys/types.h>
-	#include <dirent.h>
-#endif // _WIN32 || _WIN64
 
+#include <cctype>
 #include <iostream>
 #include <fstream>
 #include <regex>
 #include <string>
 #include <vector>
+#include <sstream>
+
+#include "File_IO.h"
 
 // GLEW
 #define GLEW_STATIC
@@ -21,9 +19,17 @@
 // STRUCTS
 /* Basic Shape Data*/
 struct coordinates {
-	std::vector<GLfloat>* container;
-	GLfloat *data;
-	size_t size;
+	std::string Name;
+	std::vector<GLfloat>* VertContainer;
+	GLfloat *VertData; // Pointer to array within VertContainer
+	size_t VertSize; // Number of elements
+};
+
+struct elements {
+	std::string Name;
+	std::vector<GLuint>* ElemContainer;
+	GLuint *ElemData; // Pointer to array within ElemContainer
+	size_t ElemSize; // Number of elements
 };
 
 /* Buffer / Array data for shapes stored on GPU */
@@ -32,7 +38,7 @@ struct VertexedShape {
 	GLuint VAO;
 	GLuint VBO;
 	GLuint EBO;
-	GLuint vertices;
+	GLuint elements;
 	// TODO Carry shape name should receive from coordinates
 };
 
@@ -52,8 +58,8 @@ public:
 
 private:
 	std::vector<coordinates*> * Coords; // Intended to be emptied after every LoadDirectory operation
+	std::vector<elements*> * Elems; // Intended to be emptied after every LoadDirectory operation
 	std::vector<VertexedShape*> * VertexObjects;
 
-	std::vector<std::string> DirectoryContents(std::string);
 	void BuildVertexObjects();
 };
