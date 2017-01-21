@@ -27,6 +27,9 @@ void LoadedVertexObjects::LoadDirectory(std::string dir)
 	coordinates* CoordinateBuffer; //ShapeBuffer
 
 	for (std::string file : files) {
+		if (!std::regex_match(file, std::regex(".*\\.(dobj|obj)"))) {
+			continue;
+		}
 
 		std::cout << "Loading: " << (dir + file) << std::endl;
 
@@ -75,16 +78,16 @@ std::vector<std::string> LoadedVertexObjects::DirectoryContents(std::string dir)
 	linux replaces '\\' with '/' */
 
 	std::vector<std::string> FileList;
-	#ifdef linux
+	#ifdef __linux__
 		DIR *dp;
 		struct dirent *dirp;
 		if ((dp = opendir(dir.c_str())) == NULL) {
 			std::cout << "Error (" << errno << ") opening " << dir << std::endl;
-			return errno;
+			return FileList;
 		}
 
 		while ((dirp = readdir(dp)) != NULL) {
-			files.pushback(string(dirp->d_name));
+			FileList.push_back(std::string(dirp->d_name));
 		}
 		closedir(dp);
 	#elif _WIN32 || _WIN64

@@ -6,28 +6,28 @@ shaders * load_shaders()
 	shaders* LoadedShader = new shaders;
 
 
-	// TODO Open Shader files (.frag, .vert) from ./Shaders
-	// Load Source for each file
-	// Process source code and bind to a shader
-	// Get shader uint and pass back to main
-	const std::string dir = "Shaders\\";
 
 	std::vector<std::string> files;
 
 
-	#ifdef linux
+	#ifdef __linux__
+		std::string dir = "./Shaders/"; // We have different directory styles depending on the OS
+	
+		std::cout << "IN LINUX" << std::endl;
 		DIR *dp;
 		struct dirent *dirp;
 		if ((dp = opendir(dir.c_str())) == NULL) {
 			std::cout << "Error (" << errno << ") opening " << dir << std::endl;
-			return errno;
+			return nullptr; // TODO: We want this to throw a fit and ask for dif shader
 		}
 
 		while ((dirp = readdir(dp)) != NULL) {
-			files.pushback(string(dirp->d_name));
+			files.push_back(std::string(dirp->d_name));
 		}
 		closedir(dp);
 	#elif _WIN32 || _WIN64
+		std::string dir = ".\\Shaders\\";
+	
 		std::string searchPath = dir + "*";
 		std::cout << searchPath << std::endl;
 
@@ -51,7 +51,7 @@ shaders * load_shaders()
 	std::ifstream fb; // FileBuffer
 
 	// TODO: This will be repeated code; Need to fix
-	
+	std::cout << "File Count: " << files.size() << std::endl;
 	for (std::string file : files) {
 		if (!std::regex_match(file, std::regex(".*\\.(frag|vert)"))) {
 			continue;

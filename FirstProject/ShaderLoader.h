@@ -1,7 +1,7 @@
 #pragma once
 #if _WIN64 || _WIN32
 #include <Windows.h>
-#elif linux
+#elif __linux
 #include <sys/types.h>
 #include <dirent.h>
 #endif // _WIN32 || _WIN64
@@ -14,7 +14,7 @@
 
 // GLEW
 #define GLEW_STATIC
-#include <GLEW\include\GL\glew.h>
+#include <GL/glew.h>
 // GLFW
 #include <GLFW/glfw3.h>
 
