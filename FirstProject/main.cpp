@@ -1,5 +1,3 @@
-// TODO: Refactor into multiple files; This is getting rather fat!
-
 #include <iostream>
 #include <string>
 #include <vector>
