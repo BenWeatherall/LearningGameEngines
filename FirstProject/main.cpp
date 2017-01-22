@@ -1,5 +1,3 @@
-// To be changed to Tutorial Files
-
 #include <iostream>
 #include <string>
 #include <vector>
