@@ -71,7 +71,7 @@ int main()
 	int nbFrames = 0;
 
 	// Wireframe
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	// Program Loop
 	while (!glfwWindowShouldClose(window))
