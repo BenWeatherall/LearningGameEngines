@@ -93,9 +93,8 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 		
 		GLfloat timeValue = glfwGetTime();
-		GLfloat greenValue = (sin(timeValue*15) / 3) + 0.5;
-		GLint vertexColorLocation = glGetUniformLocation(ShaderProgram, "ourColor");
 
+		GLint shaderTimer = glGetUniformLocation(ShaderProgram, "time");
 		
 		/*	TODO: Implement a 'view object' system. 
 			On KeyPress (Say <ENTER>) call a new thread 
@@ -105,7 +104,7 @@ int main()
 		*/
 		glUseProgram(ShaderProgram);
 
-		glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+		glUniform1f(shaderTimer, timeValue);
 
 		for (unsigned int i = 0; i < MeshData.GetShapes()->size(); ++i) {
 			glBindVertexArray(MeshData.GetShapes()->at(i)->VAO);

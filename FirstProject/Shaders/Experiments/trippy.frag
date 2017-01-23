@@ -8,6 +8,6 @@ uniform vec4 ourColor;
 void main()
 {
 	// color = ourColor;
-	color = loc;
-	// color = vec4(loc.x+ sin(loc.y + time), loc.y+ cos(loc.y + time), loc.z+ tan(loc.y + time), 1);
+	// color = loc;
+	color = vec4(loc.x+ sin(loc.y + time), loc.y+ cos(loc.y + time), loc.z+ tan(loc.y + time), 1);
 };
