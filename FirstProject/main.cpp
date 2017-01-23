@@ -1,130 +1,110 @@
-// TUTORIAL
-
 #include <iostream>
-#include <string>
-#include <vector>
-
-#include "ObjectLoader.h"
-#include "ShaderLoader.h"
 
 // GLEW
 #define GLEW_STATIC
 #include <GL/glew.h>
+
 // GLFW
 #include <GLFW/glfw3.h>
 
-// Window Dimensions
-const GLuint WIDTH = 800, HEIGHT = 600;
+// Other includes
+#include "Shader.h"
 
-// Function Prototypes
+
+// Function prototypes
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
+// Window dimensions
+const GLuint WIDTH = 800, HEIGHT = 600;
+
+// The MAIN function, from here we start the application and run the game loop
 int main()
 {
 	// Init GLFW
 	glfwInit();
-	// Set GLFW req options
+	// Set all the required options for GLFW
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-	// Create window
-	/* We can create as many windows as we like via this method; remember that each window will need to be made 
-	current context to have actions applied to it, so really you should have a pointer / function that can be
-	reused to perform the same actions if you want multiple windows.*/ 
-	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "LearnOpenGL", nullptr, nullptr); // Window 1
-	if (window == nullptr)
-	{
-		std::cout << "Failed to create GLFW window" << std::endl;
-		glfwTerminate();
-		return -1;
-	}
-
-	// I.E This is where the following actions shall occur
+	// Create a GLFWwindow object that we can use for GLFW's functions
+	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "LearnOpenGL", nullptr, nullptr);
 	glfwMakeContextCurrent(window);
 
-	// Set required callbacks: Guessing this becomes a large switch which will then be converted into a hash (after all you always want rebindable keys!)
-	// Following from that; I wonder how one does context... State machine?
+	// Set the required callback functions
 	glfwSetKeyCallback(window, key_callback);
 
-	// Initialise GLEW
+	// Set this to true so GLEW knows to use a modern approach to retrieving function pointers and extensions
 	glewExperimental = GL_TRUE;
-	if (glewInit() != GLEW_OK)
-	{
-		std::cout << "Failed to initialise GLEW" << std::endl;
-		return -1;
-	}
+	// Initialize GLEW to setup the OpenGL Function pointers
+	glewInit();
 
-	// Set up viewport
-	int width, height;
-	glfwGetFramebufferSize(window, &width, &height);
-	glViewport(0, 0, width, height);
+	// Define the viewport dimensions
+	glViewport(0, 0, WIDTH, HEIGHT);
 
-	// Load Shaders into program
-	GLuint ShaderProgram = BuildShaderProgram();
 
-	// Load Shapes
-	LoadedVertexObjects MeshData("./Shapes/");
+	// Build and compile our shader program
+	Shader ourShader("./Shaders/first.vert", "./Shaders/first.frag");
 
-	double lastTime = glfwGetTime();
-	int nbFrames = 0;
 
-	// Wireframe
-	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	// Set up vertex data (and buffer(s)) and attribute pointers
+	GLfloat vertices[] = {
+		// Positions         // Colors
+		0.5f, -0.5f, 0.0f,   1.0f, 0.0f, 0.0f,  // Bottom Right
+		-0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,  // Bottom Left
+		0.0f,  0.5f, 0.0f,   0.0f, 0.0f, 1.0f   // Top 
+	};
+	GLuint VBO, VAO;
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	// Bind the Vertex Array Object first, then bind and set vertex buffer(s) and attribute pointer(s).
+	glBindVertexArray(VAO);
 
-	// Program Loop
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	// Position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
+	glEnableVertexAttribArray(0);
+	// Color attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(1);
+
+	glBindVertexArray(0); // Unbind VAO
+
+
+						  // Game loop
 	while (!glfwWindowShouldClose(window))
 	{
-		// Measure speed (http://www.opengl-tutorial.org/miscellaneous/an-fps-counter/)
-		double currentTime = glfwGetTime();
-		nbFrames++;
-		if (currentTime - lastTime >= 1.0) { // If last prinf() was more than 1 sec ago
-											 // printf and reset timer
-			printf("%f ms/frame\n", 1000.0 / double(nbFrames));
-			nbFrames = 0;
-			lastTime += 1.0;
-		}
-
-		// Check and call events
+		// Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
 		glfwPollEvents();
 
-		// Rendering Commands here
-		glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+		// Render
+		// Clear the colorbuffer
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-		
-		GLfloat timeValue = glfwGetTime();
-		GLfloat greenValue = (sin(timeValue*15) / 3) + 0.5;
-		GLint vertexColorLocation = glGetUniformLocation(ShaderProgram, "ourColor");
 
-		
-		/*	TODO: Implement a 'view object' system. 
-			On KeyPress (Say <ENTER>) call a new thread 
-			This thread lists files loaded and askes which asks for input
-			of which to load. On load the current object is replaced with
-			the selected object and the thread dies
-		*/
-		glUseProgram(ShaderProgram);
+		// Draw the triangle
+		ourShader.Use();
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glBindVertexArray(0);
 
-		glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
-
-		for (unsigned int i = 0; i < MeshData.GetShapes()->size(); ++i) {
-			glBindVertexArray(MeshData.GetShapes()->at(i)->VAO);
-			glDrawElements(GL_TRIANGLES, MeshData.GetShapes()->at(i)->elements, GL_UNSIGNED_INT, 0);
-			glBindVertexArray(0);
-		}
-		// Swap Buffers
+		// Swap the screen buffers
 		glfwSwapBuffers(window);
 	}
-
+	// Properly de-allocate all resources once they've outlived their purpose
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO);
+	// Terminate GLFW, clearing any resources allocated by GLFW.
 	glfwTerminate();
 	return 0;
 }
 
+// Is called whenever a key is pressed/released via GLFW
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
-	// When user presses the escape key, we set the windowShouldClose property to true,
-	// closing the application
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GL_TRUE);
 }
