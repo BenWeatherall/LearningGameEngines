@@ -10,6 +10,11 @@
 // SOIL
 #include <SOIL/SOIL.h>
 
+// GLM
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 // Other includes
 #include "Shader.h"
 
@@ -130,7 +135,8 @@ int main()
 	SOIL_free_image_data(image);
 	glBindTexture(GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
 
-						  // Game loop
+
+	// Game loop
 	while (!glfwWindowShouldClose(window))
 	{
 		// Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
@@ -140,6 +146,16 @@ int main()
 		// Clear the colorbuffer
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		// Transform
+		glm::mat4 trans;
+		trans = glm::translate(trans, glm::vec3(0.8f, -0.8f, 0.0f));
+		trans = glm::scale(trans, glm::vec3(0.25, 0.25, 0.25));
+		trans = glm::rotate(trans, glm::radians((GLfloat)glfwGetTime() * 180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+		
+
+		GLuint transformLoc = glGetUniformLocation(ourShader.Program, "transform");
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
 
 		// Activate Shader
 		ourShader.Use();
