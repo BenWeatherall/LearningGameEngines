@@ -1,14 +1,14 @@
-#include "ObjectLoader.h"
+#include "StaticMeshLoader.h"
 
-LoadedVertexObjects::LoadedVertexObjects(std::string dir)
+StaticMeshLoader::StaticMeshLoader(std::string dir)
 {
 	Coords = new std::vector<coordinates*>;
-	VertexObjects = new std::vector<VertexedShape*>;
+	VertexObjects = new std::vector<StaticMesh*>;
 
 	LoadDirectory(dir);
 }
 
-LoadedVertexObjects::~LoadedVertexObjects()
+StaticMeshLoader::~StaticMeshLoader()
 {
 	for (unsigned int i = 0; i < VertexObjects->size(); ++i) {
 		glDeleteVertexArrays(1, &(VertexObjects->at(i)->VAO));
@@ -16,7 +16,7 @@ LoadedVertexObjects::~LoadedVertexObjects()
 	}
 }
 
-void LoadedVertexObjects::LoadDirectory(std::string dir)
+void StaticMeshLoader::LoadDirectory(std::string dir)
 {
 
 	std::vector<std::string> files = DirectoryContents(dir);
@@ -112,12 +112,12 @@ void LoadedVertexObjects::LoadDirectory(std::string dir)
 
 }
 
-void LoadedVertexObjects::BuildVertexObjects()
+void StaticMeshLoader::BuildVertexObjects()
 {
-	VertexedShape* currentShape;
+	StaticMesh* currentShape;
 	std::cout << "Number of Coordinates: " << Coords->size() << std::endl;
 	for (unsigned int i = 0; i < Coords->size(); ++i) {
-		currentShape = new VertexedShape;
+		currentShape = new StaticMesh;
 		currentShape->name = Coords->at(i)->Name;
 
 		// Store the number of vertices for the shape (so we can easily call in future)
@@ -152,7 +152,7 @@ void LoadedVertexObjects::BuildVertexObjects()
 	}
 }
 
-std::vector<VertexedShape*> * LoadedVertexObjects::GetShapes()
+std::vector<StaticMesh*> * StaticMeshLoader::GetShapes()
 {
 	return VertexObjects;
 }

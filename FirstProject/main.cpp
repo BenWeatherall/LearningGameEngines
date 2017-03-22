@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "ObjectLoader.h"
+#include "StaticMeshLoader.h"
 #include "ShaderLoader.h"
 
 // GLEW
@@ -11,6 +11,8 @@
 #include <GL/glew.h>
 // GLFW
 #include <GLFW/glfw3.h>
+// GLM
+#include <glm/glm.hpp>
 
 // Window Dimensions
 const GLuint WIDTH = 800, HEIGHT = 600;
@@ -64,7 +66,7 @@ int main()
 	GLuint ShaderProgram = BuildShaderProgram();
 
 	// Load Shapes
-	LoadedVertexObjects MeshData("./Shapes/");
+	StaticMeshLoader MeshData("./Shapes/");
 
 	double lastTime = glfwGetTime();
 	int nbFrames = 0;

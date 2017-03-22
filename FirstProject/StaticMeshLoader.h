@@ -9,12 +9,16 @@
 #include <sstream>
 
 #include "File_IO.h"
+#include "ShaderLoader.h"
+#include "StaticMesh.h"
 
 // GLEW
 #define GLEW_STATIC
 #include <GL/glew.h>
 // GLFW
 #include <GLFW/glfw3.h>
+// GLM
+#include <glm/glm.hpp>
 
 // STRUCTS
 /* Basic Shape Data*/
@@ -33,33 +37,36 @@ struct elements {
 };
 
 /* Buffer / Array data for shapes stored on GPU */
-struct VertexedShape {
+// TODO Remove and replace with Mesh class
+struct StaticMesh {
 	std::string name;
 	GLuint VAO;
 	GLuint VBO;
 	GLuint EBO;
 	GLuint elements;
-	// TODO Carry shape name should receive from coordinates
+	GLuint shader_program;
+	glm::vec3 rotation;
+	glm::vec3 location;
 };
 
 // Function Interface
-std::vector<coordinates*>* load_shapes();
+// std::vector<coordinates*>* load_shapes();
 
-class LoadedVertexObjects {
+class StaticMeshLoader {
 public:
-	LoadedVertexObjects(std::string);
-	~LoadedVertexObjects();
+	StaticMeshLoader(std::string);
+	~StaticMeshLoader();
 	// Consider merging with constructor. 
 	// Expected behaviour would be to add contents of supplied dir to existing file. 
 	// Currently I believe this replaces it! Need to assess.
 	void LoadDirectory(std::string); 
 
-	std::vector<VertexedShape*> * GetShapes();
+	std::vector<StaticMesh*> * GetShapes();
 
 private:
 	std::vector<coordinates*> * Coords; // Intended to be emptied after every LoadDirectory operation
 	std::vector<elements*> * Elems; // Intended to be emptied after every LoadDirectory operation
-	std::vector<VertexedShape*> * VertexObjects;
+	std::vector<StaticMesh*> * VertexObjects;
 
 	void BuildVertexObjects();
 };

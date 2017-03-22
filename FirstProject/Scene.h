@@ -1,8 +1,9 @@
 #pragma once
+#include "Actor.h"
 
 class Scene {
 public:
-	Scene();
+	Scene(std::string SceneCSV);
 	~Scene();
 	uint64_t attachActor();
 	uint64_t attachStatic();

@@ -123,13 +123,14 @@
   <ItemGroup>
     <ClCompile Include="File_IO.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="ObjectLoader.cpp" />
+    <ClCompile Include="StaticMeshLoader.cpp" />
     <ClCompile Include="ShaderLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h" />
     <ClInclude Include="File_IO.h" />
-    <ClInclude Include="ObjectLoader.h" />
+    <ClInclude Include="StaticMesh.h" />
+    <ClInclude Include="StaticMeshLoader.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="ShaderLoader.h" />
   </ItemGroup>
