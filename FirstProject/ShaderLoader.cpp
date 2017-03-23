@@ -1,106 +1,93 @@
 #include "ShaderLoader.h"
 
-// I will be using the algorithm shown at: http://insanecoding.blogspot.com.au/2011/11/how-to-read-in-file-in-c.html
-shaders * load_shaders()
+// TODO Look at updating to allow for multiple of each shader
+// Consider bitwise shader loading along with a map of shaders? 
+// is this too much? 
+shaders load_shaders(std::map< GLuint, std::vector<std::string> > filenames)
 {
-	std::string dir = "./Shaders/";
-	shaders* LoadedShader = new shaders;
+	shaders LoadedShaders;
 
-	std::vector<std::string> files = DirectoryContents(dir);
-	
-	std::ifstream fb; // FileBuffer
+	for (GLuint shader_type = GL_FRAGMENT_SHADER; shader_type < GL_VERTEX_SHADER + 1; shader_type++)
+	{
+		for (int shader = 0; shader < filenames[shader_type].size(); shader++)
+		{
+			std::ifstream fb; // FileBuffer
 
-	// TODO: This will be repeated code; Need to fix
-	std::cout << "File Count: " << files.size() << std::endl;
-	for (std::string file : files) {
-		if (!std::regex_match(file, std::regex(".*\\.(frag|vert)"))) {
-			continue;
-		}
+			std::cout << "Loading: " << (filenames[shader_type][shader]) << std::endl;
+			std::ifstream in(filenames[shader_type][shader], std::ios::in | std::ios::binary);
 
-		std::cout << "Loading: " << (dir + file) << std::endl;
+			if (in) {
+				in.seekg(0, std::ios::end);
 
-		std::ifstream in((dir + file), std::ios::in | std::ios::binary);
+				// TODO: Confirm I will never be dealing with a object file greater than MAX_INT bytes
+				uint64_t length = in.tellg(); // tellg can return up to a long long. It is meant to be able to return the MAXIMUM POSSIBLE filesize the OS can handle. 
+				GLchar * ShaderSourceCode = new GLchar[length + 1]; // We are reading a c_string so make room for the \0
 
-		if (in) {
-			in.seekg(0, std::ios::end);
+				in.seekg(0, std::ios::beg);
 
-			// TODO: Confirm I will never be dealing with a object file greater than MAX_INT bytes
-			int length = in.tellg(); // tellg can return up to a long long. It is meant to be able to return the MAXIMUM POSSIBLE filesize the OS can handle. 
-			GLchar * ShaderSourceCode = new GLchar [length+1]; // We are reading a c_string so make room for the \0
+				in.read(ShaderSourceCode, length);
 
-			in.seekg(0, std::ios::beg);
+				in.close();
+				ShaderSourceCode[length] = '\0'; // .read() doesn't add a \0, we need to add it ourselves
 
-			in.read(ShaderSourceCode, length);
 
-			if (!in) {
-				std::cout << "error: only " << in.gcount() << " could be read";
+				// Build Shaders
+				LoadedShaders.vertexShader.push_back(BuildShader(&ShaderSourceCode, shader_type));
+
+				delete ShaderSourceCode;
+			}
+			else {
+				std::cout << "ERROR: only " << in.gcount() << " could be read of " << filenames[shader_type][shader] << " : SKIPPING" << std::endl;
+				in.close();
+				continue;
 			}
 
-			in.close();
-			ShaderSourceCode[length] = '\0'; // .read() doesn't add a \0, we need to add it ourselves
+			fb.close();
 
-
-			// Build Shaders
-			if (std::regex_match(file, std::regex(".*\\.vert"))) {
-				BuildVertexShader(&(LoadedShader->vertexShader), &ShaderSourceCode);
-			}
-			if (std::regex_match(file, std::regex(".*\\.frag"))) {
-				BuildFragmentShader(&(LoadedShader->fragmentShader), &ShaderSourceCode);
-			}
-			delete ShaderSourceCode;
 		}
-		else {
-			std::cout << "Error: " << file << " failed to open" << std::endl;
-		}
-
-		fb.close();
-
 	}
-
-	return LoadedShader;
+	return LoadedShaders;
 }
 
-void BuildVertexShader(GLuint * VertexShader, GLchar** SourceCode)
+GLuint BuildShader(GLchar** SourceCode, GLuint shader_type)
 {
-	*VertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(*VertexShader, 1, SourceCode, NULL);
-	glCompileShader(*VertexShader);
+	GLuint shader = glCreateShader(shader_type);
+	glShaderSource(shader, 1, SourceCode, NULL);
+	glCompileShader(shader);
 
 	GLint success;
 	GLchar infoLog[512];
-	glGetShaderiv(*VertexShader, GL_COMPILE_STATUS, &success);
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
 	if (!success) {
-		glGetShaderInfoLog(*VertexShader, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+		glGetShaderInfoLog(shader, 512, NULL, infoLog);
+		printf("ERROR::SHADER::COMPILATION_FAILED (0x%04X)\n %s", shader_type, infoLog);
+		glDeleteShader(shader);
 	}
 
 }
 
-void BuildFragmentShader(GLuint * FragmentShader, GLchar** SourceCode)
+// TODO: Issues with current system. We load every shader every time it is used across all the objects within the scene
+// Consider building a map of shaders while "Loading" and delete them all at the end?
+GLuint BuildShaderProgram(std::vector<std::string> vertex_filenames, std::vector<std::string> fragment_filenames)
 {
-	*FragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(*FragmentShader, 1, SourceCode, NULL);
-	glCompileShader(*FragmentShader);
-
-	GLint success;
-	GLchar infoLog[512];
-	glGetShaderiv(*FragmentShader, GL_COMPILE_STATUS, &success);
-	if (!success) {
-		glGetShaderInfoLog(*FragmentShader, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
-
-}
-
-GLuint BuildShaderProgram()
-{
-	shaders* LoadedShaders = load_shaders(); // TODO (since we are only passing around small values, this can be on the stack)
+	shaders LoadedShaders = load_shaders(vertex_filenames, fragment_filenames);
 
 	GLuint ShaderProgram;
 	ShaderProgram = glCreateProgram();
 
-	glAttachShader(ShaderProgram, LoadedShaders->vertexShader);
-	glAttachShader(ShaderProgram, LoadedShaders->fragmentShader);
+	// Attach Vertex Shaders
+	for (int shader = 0; shader < LoadedShaders.vertexShader.size(); shader++)
+	{
+		glAttachShader(ShaderProgram, LoadedShaders.vertexShader[shader]);
+	}
+
+	// Attach Fragment Shaders
+	for (int shader = 0; shader < LoadedShaders.fragmentShader.size(); shader++)
+	{
+		glAttachShader(ShaderProgram, LoadedShaders.fragmentShader[shader]);
+	}
+
+
 	glLinkProgram(ShaderProgram);
 
 	GLint success;
@@ -112,10 +99,18 @@ GLuint BuildShaderProgram()
 		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
 	}
 
-	glDeleteShader(LoadedShaders->vertexShader);
-	glDeleteShader(LoadedShaders->fragmentShader);
 
-	delete LoadedShaders;
+	// Delete Vertex Shaders
+	for (int shader = 0; shader < LoadedShaders.vertexShader.size(); shader++)
+	{
+		glDeleteShader(LoadedShaders.vertexShader[shader]);
+	}
+
+	// Delete Fragment Shaders
+	for (int shader = 0; shader < LoadedShaders.fragmentShader.size(); shader++)
+	{
+		glDeleteShader(LoadedShaders.fragmentShader[shader]);
+	}
 
 	return ShaderProgram;
 }

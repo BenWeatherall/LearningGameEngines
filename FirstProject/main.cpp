@@ -3,9 +3,6 @@
 #include <string>
 #include <vector>
 
-#include "StaticMeshLoader.h"
-#include "ShaderLoader.h"
-
 // GLEW
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -13,9 +10,16 @@
 #include <GLFW/glfw3.h>
 // GLM
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#include "StaticMeshLoader.h"
+#include "ShaderLoader.h"
+#include "Seconds_Per_Frame_Counter.h"
+#include "Camera.h"
 
 // Window Dimensions
-const GLuint WIDTH = 800, HEIGHT = 600;
+const GLuint WIDTH = 1024, HEIGHT = 768;
 
 // Function Prototypes
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
@@ -34,7 +38,7 @@ int main()
 	/* We can create as many windows as we like via this method; remember that each window will need to be made 
 	current context to have actions applied to it, so really you should have a pointer / function that can be
 	reused to perform the same actions if you want multiple windows.*/ 
-	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "LearnOpenGL", nullptr, nullptr); // Window 1
+	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Complex Mesh Project", nullptr, nullptr); // Window 1
 	if (window == nullptr)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -62,30 +66,24 @@ int main()
 	glfwGetFramebufferSize(window, &width, &height);
 	glViewport(0, 0, width, height);
 
+
+	/*	TODO: Replace Shaders and Shapes with load operation for a csv file
+		which will load specified meshes, their relevant shaders, offsets and rotations
+	*/
 	// Load Shaders into program
 	GLuint ShaderProgram = BuildShaderProgram();
-
-	// Load Shapes
+		// Load Shapes
 	StaticMeshLoader MeshData("./Shapes/");
 
-	double lastTime = glfwGetTime();
-	int nbFrames = 0;
 
-	// Wireframe
-	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	// Initialise Seconds per Frame counter
+	SPF_Counter spf_report = SPF_Counter();
 
 	// Program Loop
 	while (!glfwWindowShouldClose(window))
 	{
-		// Measure speed (http://www.opengl-tutorial.org/miscellaneous/an-fps-counter/)
-		double currentTime = glfwGetTime();
-		nbFrames++;
-		if (currentTime - lastTime >= 1.0) { // If last prinf() was more than 1 sec ago
-											 // printf and reset timer
-			printf("%f ms/frame\n", 1000.0 / double(nbFrames));
-			nbFrames = 0;
-			lastTime += 1.0;
-		}
+		// Show current time per frame
+		spf_report.tick();
 
 		// Check and call events
 		glfwPollEvents();

@@ -5,6 +5,8 @@
 #include <cerrno>
 #include <regex>
 #include <iostream>
+#include <vector>
+#include <map>
 
 #include "File_IO.h"
 
@@ -17,12 +19,11 @@
 // STRUCTS
 /* Basic Shape Data*/
 struct shaders {
-	GLuint fragmentShader;
-	GLuint vertexShader;
+	std::vector<GLuint> fragmentShader;
+	std::vector<GLuint> vertexShader;
 };
 
 // Function Interface
-shaders* load_shaders();
-void BuildVertexShader(GLuint * VertexShader, GLchar** SourceCode);
-void BuildFragmentShader(GLuint * FragmentShader, GLchar** SourceCode);
-GLuint BuildShaderProgram();
+shaders load_shaders(std::vector<std::string> vertex_shader, std::vector<std::string> fragment_shader);
+GLuint BuildShader(GLchar** SourceCode, GLuint type);
+GLuint BuildShaderProgram(std::vector<std::string> vertex_filenames, std::vector<std::string> fragment_filenames);

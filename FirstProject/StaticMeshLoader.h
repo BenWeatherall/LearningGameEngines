@@ -36,19 +36,6 @@ struct elements {
 	size_t ElemSize; // Number of elements
 };
 
-/* Buffer / Array data for shapes stored on GPU */
-// TODO Remove and replace with Mesh class
-struct StaticMesh {
-	std::string name;
-	GLuint VAO;
-	GLuint VBO;
-	GLuint EBO;
-	GLuint elements;
-	GLuint shader_program;
-	glm::vec3 rotation;
-	glm::vec3 location;
-};
-
 // Function Interface
 // std::vector<coordinates*>* load_shapes();
 
@@ -64,6 +51,7 @@ public:
 	std::vector<StaticMesh*> * GetShapes();
 
 private:
+
 	std::vector<coordinates*> * Coords; // Intended to be emptied after every LoadDirectory operation
 	std::vector<elements*> * Elems; // Intended to be emptied after every LoadDirectory operation
 	std::vector<StaticMesh*> * VertexObjects;

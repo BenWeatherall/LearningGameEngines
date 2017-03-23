@@ -123,12 +123,17 @@
   <ItemGroup>
     <ClCompile Include="File_IO.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Seconds_Per_Frame_Counter.cpp" />
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="StaticMesh.cpp" />
     <ClCompile Include="StaticMeshLoader.cpp" />
     <ClCompile Include="ShaderLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h" />
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="File_IO.h" />
+    <ClInclude Include="Seconds_Per_Frame_Counter.h" />
     <ClInclude Include="StaticMesh.h" />
     <ClInclude Include="StaticMeshLoader.h" />
     <ClInclude Include="Scene.h" />

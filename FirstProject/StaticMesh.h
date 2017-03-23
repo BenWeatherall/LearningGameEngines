@@ -1,12 +1,11 @@
 #pragma once
-
-struct StaticMesh {
-
-};
+#include <string>
+#include <glm\glm.hpp>
+#include "ShaderLoader.h"
 
 class StaticMesh {
 public:
-	StaticMesh();
+	StaticMesh(std::string model_file, std::string fragment_shader, std::string vertex_shader);
 	~StaticMesh();
 	void draw();
 private:
