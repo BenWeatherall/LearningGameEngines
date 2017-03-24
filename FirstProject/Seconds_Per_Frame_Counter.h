@@ -7,6 +7,7 @@ class SPF_Counter {
 public:
 	SPF_Counter();
 	void tick();
+	double delta();
 private:
 	double currentTime;
 	double lastTime;

@@ -1,0 +1,2 @@
+Bones:
+	'Bone_Name', 'Component_Name', Resistance.x, Resistance.y, Resistance.z, limit.x, limit.y, limit.z, offset.x, offset.y, offset.z

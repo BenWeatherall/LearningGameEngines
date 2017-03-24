@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <cctype>
-#include "StaticMeshLoader.h"
+#include "ComplexMesh.h"
 
 class Actor {
 public:
@@ -14,6 +14,6 @@ public:
 
 private:
 	//ComplexMesh*
-
+	ComplexMesh Components;
 
 };

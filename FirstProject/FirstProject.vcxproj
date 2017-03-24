@@ -123,6 +123,7 @@
   <ItemGroup>
     <ClCompile Include="File_IO.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Seconds_Per_Frame_Counter.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="StaticMesh.cpp" />
@@ -132,6 +133,7 @@
   <ItemGroup>
     <ClInclude Include="Actor.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="ComplexMesh.h" />
     <ClInclude Include="File_IO.h" />
     <ClInclude Include="Seconds_Per_Frame_Counter.h" />
     <ClInclude Include="StaticMesh.h" />

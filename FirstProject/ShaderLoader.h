@@ -23,7 +23,24 @@ struct shaders {
 	std::vector<GLuint> vertexShader;
 };
 
-// Function Interface
-shaders load_shaders(std::vector<std::string> vertex_shader, std::vector<std::string> fragment_shader);
-GLuint BuildShader(GLchar** SourceCode, GLuint type);
-GLuint BuildShaderProgram(std::vector<std::string> vertex_filenames, std::vector<std::string> fragment_filenames);
+// Constants
+const std::regex VERT_EXT(".*\.vert");
+const std::regex FRAG_EXT(".*\.frag");
+
+class ShaderLoader {
+public:
+	ShaderLoader();
+	~ShaderLoader();
+	void add_shaders(std::vector<std::string> filenames);
+	GLuint build_program(std::vector<std::string> filenames);
+private:
+
+	std::map<std::string, GLuint>* built_shaders;
+
+	void load_shader(std::string filename);
+
+	bool is_shader_built(std::string);
+
+	GLuint build_shader(GLchar** SourceCode, GLuint type);
+	GLuint build_shader_program(std::vector<std::string> filenames);
+};

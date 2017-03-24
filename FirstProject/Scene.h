@@ -23,8 +23,8 @@ private:
 	// Ambient Lighting
 	// Lights Vector
 	/** DO AS MAP **/
-	// Static Mesh Vector
-		// Complex shapes with no Update() functionality
+	std::vector<ComplexMesh> Static;
+	std::vector<Actor> Actors;
 	// Actors Vector
 		// Complex shapes with Update()
 	// AnimationTimeline

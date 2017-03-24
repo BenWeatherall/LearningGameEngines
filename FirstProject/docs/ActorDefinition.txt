@@ -1,0 +1,2 @@
+Actor:
+	'Component_Name', OBJ_FILE, scale.x, scale.y, scale.z, loc.x, loc.y, loc.z, rot.x, rot.y, rot.z // Local

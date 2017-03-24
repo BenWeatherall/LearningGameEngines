@@ -5,7 +5,7 @@
 
 class StaticMesh {
 public:
-	StaticMesh(std::string model_file, std::string fragment_shader, std::string vertex_shader);
+	StaticMesh(std::string model_file, std::vector<std::string> shader_filenames, ShaderLoader* scene_shader_loader);
 	~StaticMesh();
 	void draw();
 private:

@@ -1,7 +1,15 @@
-// LEARNING BRANCH
+/*	LEARNING BRANCH:
+	Author: Ben Weatherall
+	Description: Increasingly complex OpenGL program aiming to develop my skills and then
+	assist with course projects.
+	Current aims: Implement Camera, Scene Component and Complex Mesh Handling
+	Future aims: Inverse Kinematics animation system utilising weighting
+*/
+
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cstdlib>
 
 // GLEW
 #define GLEW_STATIC
@@ -13,31 +21,23 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "StaticMeshLoader.h"
-#include "ShaderLoader.h"
-#include "Seconds_Per_Frame_Counter.h"
-#include "Camera.h"
+#include "Seconds_Per_Frame_Counter.h"	// Handy way to check performance
+#include "Camera.h"						// Our game camera class
+#include "Scene.h"						// Our game scene component
 
 // Window Dimensions
 const GLuint WIDTH = 1024, HEIGHT = 768;
 
 // Function Prototypes
+void system_init();
+
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
 int main()
 {
-	// Init GLFW
-	glfwInit();
-	// Set GLFW req options
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+	system_init();
 
 	// Create window
-	/* We can create as many windows as we like via this method; remember that each window will need to be made 
-	current context to have actions applied to it, so really you should have a pointer / function that can be
-	reused to perform the same actions if you want multiple windows.*/ 
 	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Complex Mesh Project", nullptr, nullptr); // Window 1
 	if (window == nullptr)
 	{
@@ -53,27 +53,13 @@ int main()
 	// Following from that; I wonder how one does context... State machine?
 	glfwSetKeyCallback(window, key_callback);
 
-	// Initialise GLEW
-	glewExperimental = GL_TRUE;
-	if (glewInit() != GLEW_OK)
-	{
-		std::cout << "Failed to initialise GLEW" << std::endl;
-		return -1;
-	}
-
 	// Set up viewport
 	int width, height;
 	glfwGetFramebufferSize(window, &width, &height);
 	glViewport(0, 0, width, height);
 
 
-	/*	TODO: Replace Shaders and Shapes with load operation for a csv file
-		which will load specified meshes, their relevant shaders, offsets and rotations
-	*/
-	// Load Shaders into program
-	GLuint ShaderProgram = BuildShaderProgram();
-		// Load Shapes
-	StaticMeshLoader MeshData("./Shapes/");
+	Scene* currentLevel = new Scene("./Scenes/Level_01.scene");
 
 
 	// Initialise Seconds per Frame counter
@@ -84,6 +70,8 @@ int main()
 	{
 		// Show current time per frame
 		spf_report.tick();
+		
+		currentLevel->tick(spf_report.delta());
 
 		// Check and call events
 		glfwPollEvents();
@@ -91,32 +79,34 @@ int main()
 		// Rendering Commands here
 		glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-		
-		GLfloat timeValue = glfwGetTime();
 
-		GLint shaderTimer = glGetUniformLocation(ShaderProgram, "time");
-		
-		/*	TODO: Implement a 'view object' system. 
-			On KeyPress (Say <ENTER>) call a new thread 
-			This thread lists files loaded and askes which asks for input
-			of which to load. On load the current object is replaced with
-			the selected object and the thread dies
-		*/
-		glUseProgram(ShaderProgram);
+		currentLevel->draw();
 
-		glUniform1f(shaderTimer, timeValue);
-
-		for (unsigned int i = 0; i < MeshData.GetShapes()->size(); ++i) {
-			glBindVertexArray(MeshData.GetShapes()->at(i)->VAO);
-			glDrawElements(GL_TRIANGLES, MeshData.GetShapes()->at(i)->elements, GL_UNSIGNED_INT, 0);
-			glBindVertexArray(0);
-		}
 		// Swap Buffers
 		glfwSwapBuffers(window);
 	}
 
 	glfwTerminate();
 	return 0;
+}
+
+void system_init()
+{
+	// Init GLFW
+	glfwInit();
+	// Set GLFW req options
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+
+	// Initialise GLEW
+	glewExperimental = GL_TRUE;
+	if (glewInit() != GLEW_OK)
+	{
+		std::cout << "Failed to initialise GLEW" << std::endl;
+		exit(-1);
+	}
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)

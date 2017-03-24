@@ -1,0 +1,13 @@
+SceneName: 
+	'Scene_name'
+Skybox: 
+	TEXTURE
+Lights:
+	'Light_Name', LIGHT_FILE // TBD
+Statics:
+	'Static_Name', STATIC_FILE, scale.x, scale.y, scale.z, loc.x, loc.y, loc.z, rot.x, rot.y, rot.z // World
+Actors:
+	'Actor_Name', ACTOR_FILE, BONES_FILE, scale.x, scale.y, scale.z, loc.x, loc.y, loc.z, rot.x, rot.y, rot.z
+Animations:
+	'Animation_Name':	ANIM_FILE
+
