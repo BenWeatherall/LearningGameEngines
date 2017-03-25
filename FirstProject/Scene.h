@@ -1,5 +1,7 @@
 #pragma once
 #include "Actor.h"
+#include "ShaderLoader.h"
+#include "StaticMeshLoader.h"
 
 class Scene {
 public:

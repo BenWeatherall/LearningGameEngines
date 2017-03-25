@@ -19,9 +19,9 @@ ShaderLoader::~ShaderLoader()
 
 void ShaderLoader::add_shaders(std::vector<std::string> filenames)
 {
-	for (auto const& filename : filenames)
+	for (auto filename : filenames)
 	{
-		if (!is_shader_built)
+		if (! is_shader_built(filename))
 			load_shader(filename);
 	}
 }

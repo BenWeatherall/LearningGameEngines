@@ -1,4 +1,5 @@
 #pragma once
+#define _CRT_SECURE_NO_WARNINGS
 /* Strongly influenced by http://www.opengl-tutorial.org/beginners-tutorials/tutorial-7-model-loading/
 */
 
@@ -22,45 +23,26 @@
 // GLM
 #include <glm/glm.hpp>
 
-// STRUCTS
-/* Basic Shape Data*/
-struct coordinates {
-	std::string Name;
-	std::vector<GLfloat>* VertContainer;
-	GLfloat *VertData; // Pointer to array within VertContainer
-	size_t VertSize; // Number of elements
+struct VertexObjects {
+	GLuint* VAO;
+	GLuint* VBO;
 };
-
-struct elements {
-	std::string Name;
-	std::vector<GLuint>* ElemContainer;
-	GLuint *ElemData; // Pointer to array within ElemContainer
-	size_t ElemSize; // Number of elements
-};
-
-// Function Interface
-// std::vector<coordinates*>* load_shapes();
 
 class StaticMeshLoader {
 public:
-	StaticMeshLoader(std::string);
+	StaticMeshLoader();
 	~StaticMeshLoader();
-	GLuint build_static_mesh(std::string filename);
-	// Consider merging with constructor. 
-	// Expected behaviour would be to add contents of supplied dir to existing file. 
-	// Currently I believe this replaces it! Need to assess.
-	
 
-	// std::vector<StaticMesh*> * GetShapes();
+	void build_static_mesh(std::string filename, GLuint* VAO, GLuint* VBO);
 
 private:
-
-	std::vector<coordinates*> * Coords; // Intended to be emptied after every LoadDirectory operation
-	std::vector<elements*> * Elems; // Intended to be emptied after every LoadDirectory operation
-	std::map<std::string, GLuint>* built_meshes;
+	std::map<std::string, VertexObjects>* built_meshes;
 
 	bool is_static_mesh_built(std::string);
 
 	void load_mesh(std::string);
-	void build_vertex_buffer(std::string);
+	void build_vertex_buffer(	std::string filename,
+								std::vector< glm::vec3 >* vertices,
+								std::vector< glm::vec3 >* normals,
+								std::vector< glm::vec2 >* uvs);
 };

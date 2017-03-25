@@ -3,7 +3,7 @@
 StaticMesh::StaticMesh(	std::string model_file, 
 						std::vector<std::string> texture_files, 
 						std::vector<std::string> shader_filenames, 
-						ShaderLoader* scene_shader_loader, 
+						ShaderLoader* scene_shader_loader, StaticMeshLoader* scene_static_loader,
 						glm::vec3* rot_key, 
 						glm::vec3* loc_key )
 {
@@ -11,7 +11,7 @@ StaticMesh::StaticMesh(	std::string model_file,
 	this->location = loc_key;
 
 	this->shader_program = scene_shader_loader->build_program(shader_filenames);
-	build_mesh(model_file);
+	scene_static_loader->build_static_mesh(model_file, this->VAO, this->VBO);
 
 	for(auto texture : texture_files)
 		build_texture(texture);
@@ -35,58 +35,12 @@ void StaticMesh::draw()
 	}
 	
 	glUseProgram(this->shader_program);
-	glBindVertexArray(this->VAO);
+	glBindVertexArray(*this->VAO);
 	glDrawArrays(GL_TRIANGLES, 0, this->vertices);
 	glBindVertexArray(0);
 }
 
-void StaticMesh::build_mesh(std::string model_file)
-{
-	// Going to transition to http://www.opengl-tutorial.org/beginners-tutorials/tutorial-7-model-loading/ 
-	// For loading objects
-	std::cout << "Loading: " << model_file << std::endl;
-	std::ifstream fb(model_file); // FileBuffer
-	std::vector<float>* vertices = new std::vector<float>;
-
-	if (!fb)
-	{
-		std::cout << "ERROR: failed to open " << model_file << " : SKIPPING" << std::endl;
-	}
-	else {
-		for (std::string line_buffer; std::getline(fb, line_buffer, ','); vertices->push_back( atof( line_buffer.c_str() ) ) );
-	}
-	
-	fb.close();
-
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	// glGenBuffers(1, &EBO);
-
-	glBindVertexArray(VAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, vertices->size(), vertices->data(), GL_STATIC_DRAW);
-
-	// Save for when to draw
-	this->vertices = vertices->size();
-
-	// glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	// glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-	// Position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
-	glEnableVertexAttribArray(0);
-	// Color attribute
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(1);
-	// TexCoord attribute
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(2);
-
-	glBindVertexArray(0); // Unbind VAO
-
-}
-
+// TODO Replace with Scene function
 void StaticMesh::build_texture(std::string texture_file)
 {
 	GLuint load_texture;
