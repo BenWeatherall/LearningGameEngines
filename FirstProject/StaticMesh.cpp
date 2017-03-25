@@ -1,9 +1,20 @@
 #include "StaticMesh.h"
 
-StaticMesh::StaticMesh(std::string model_file, std::vector<std::string> texture_file, std::vector<std::string> shader_filenames, ShaderLoader* scene_shader_loader)
+StaticMesh::StaticMesh(	std::string model_file, 
+						std::vector<std::string> texture_files, 
+						std::vector<std::string> shader_filenames, 
+						ShaderLoader* scene_shader_loader, 
+						glm::vec3* rot_key, 
+						glm::vec3* loc_key )
 {
-	this->shader_program = scene_shader_loader->build_program(shader_filenames);
+	this->rotation = rot_key;
+	this->location = loc_key;
 
+	this->shader_program = scene_shader_loader->build_program(shader_filenames);
+	build_mesh(model_file);
+
+	for(auto texture : texture_files)
+		build_texture(texture);
 
 }
 
@@ -25,67 +36,42 @@ void StaticMesh::draw()
 	
 	glUseProgram(this->shader_program);
 	glBindVertexArray(this->VAO);
-	glDrawElements(GL_TRIANGLES, this->elements, GL_UNSIGNED_INT, 0);
+	glDrawArrays(GL_TRIANGLES, 0, this->vertices);
 	glBindVertexArray(0);
 }
 
 void StaticMesh::build_mesh(std::string model_file)
 {
-	std::ifstream fb; // FileBuffer
-
+	// Going to transition to http://www.opengl-tutorial.org/beginners-tutorials/tutorial-7-model-loading/ 
+	// For loading objects
 	std::cout << "Loading: " << model_file << std::endl;
-	std::ifstream in(model_file, std::ios::in | std::ios::binary);
+	std::ifstream fb(model_file); // FileBuffer
+	std::vector<float>* vertices = new std::vector<float>;
 
-	if (in) {
-		in.seekg(0, std::ios::end);
-
-		// TODO: Confirm I will never be dealing with a object file greater than MAX_INT bytes
-		uint64_t length = in.tellg(); // tellg can return up to a long long. It is meant to be able to return the MAXIMUM POSSIBLE filesize the OS can handle. 
-		GLchar * ShaderSourceCode = new GLchar[length + 1]; // We are reading a c_string so make room for the \0
-
-		in.seekg(0, std::ios::beg);
-
-		in.read(ShaderSourceCode, length);
-
-		in.close();
-		ShaderSourceCode[length] = '\0'; // .read() doesn't add a \0, we need to add it ourselves
-
-										 // Build Shaders
-		if (std::regex_match(filename, VERT_EXT))
-		{
-			built_shaders->operator[](filename) = build_shader(&ShaderSourceCode, GL_VERTEX_SHADER);
-		}
-		else if (std::regex_match(filename, FRAG_EXT))
-		{
-			built_shaders->operator[](filename) = build_shader(&ShaderSourceCode, GL_FRAGMENT_SHADER);
-		}
-		else
-		{
-			printf("ERROR: %s is not .frag nor .vert");
-		}
-
-		delete ShaderSourceCode;
+	if (!fb)
+	{
+		std::cout << "ERROR: failed to open " << model_file << " : SKIPPING" << std::endl;
 	}
 	else {
-		std::cout << "ERROR: only " << in.gcount() << " could be read of " << filename << " : SKIPPING" << std::endl;
-		in.close();
+		for (std::string line_buffer; std::getline(fb, line_buffer, ','); vertices->push_back( atof( line_buffer.c_str() ) ) );
 	}
-
+	
 	fb.close();
-
-
 
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
+	// glGenBuffers(1, &EBO);
 
 	glBindVertexArray(VAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices->size(), vertices->data(), GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	// Save for when to draw
+	this->vertices = vertices->size();
+
+	// glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	// glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	// Position attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
