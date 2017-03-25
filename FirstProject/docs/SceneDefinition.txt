@@ -1,5 +1,7 @@
 SceneName: 
 	'Scene_name'
+Camera:
+	...
 Skybox: 
 	TEXTURE
 Lights:

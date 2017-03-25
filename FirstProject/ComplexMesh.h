@@ -8,5 +8,5 @@ public:
 	void tick(GLfloat delta);
 
 private:
-	std::vector<StaticMesh> Components;	
+	std::map<std::string, StaticMesh> Components;	
 };
