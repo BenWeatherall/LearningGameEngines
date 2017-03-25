@@ -1,4 +1,6 @@
 #pragma once
+/* Strongly influenced by http://www.opengl-tutorial.org/beginners-tutorials/tutorial-7-model-loading/
+*/
 
 #include <cctype>
 #include <iostream>
@@ -43,18 +45,22 @@ class StaticMeshLoader {
 public:
 	StaticMeshLoader(std::string);
 	~StaticMeshLoader();
+	GLuint build_static_mesh(std::string filename);
 	// Consider merging with constructor. 
 	// Expected behaviour would be to add contents of supplied dir to existing file. 
 	// Currently I believe this replaces it! Need to assess.
-	void LoadDirectory(std::string); 
+	
 
-	std::vector<StaticMesh*> * GetShapes();
+	// std::vector<StaticMesh*> * GetShapes();
 
 private:
 
 	std::vector<coordinates*> * Coords; // Intended to be emptied after every LoadDirectory operation
 	std::vector<elements*> * Elems; // Intended to be emptied after every LoadDirectory operation
-	std::vector<StaticMesh*> * VertexObjects;
+	std::map<std::string, GLuint>* built_meshes;
 
-	void BuildVertexObjects();
+	bool is_static_mesh_built(std::string);
+
+	void load_mesh(std::string);
+	void build_vertex_buffer(std::string);
 };

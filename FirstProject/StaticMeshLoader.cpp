@@ -16,10 +16,19 @@ StaticMeshLoader::~StaticMeshLoader()
 	}
 }
 
-void StaticMeshLoader::LoadDirectory(std::string dir)
+bool StaticMeshLoader::is_static_mesh_built(std::string filename)
 {
+	std::map<std::string, GLuint>::iterator it;
+	it = built_meshes->find(filename);
+	if (it != built_meshes->end())
+		return true;
 
-	std::vector<std::string> files = DirectoryContents(dir);
+	return false;
+}
+
+
+void StaticMeshLoader::load_mesh(std::string filename)
+{
 
 	std::vector<coordinates*> * LoadedVertices = new std::vector<coordinates*>;
 	std::vector<elements*> * LoadedElements = new std::vector<elements*>;
@@ -29,80 +38,73 @@ void StaticMeshLoader::LoadDirectory(std::string dir)
 	coordinates* CoordinateBuffer;
 	elements* ElementBuffer;
 
-	for (std::string file : files) {
-		if (!std::regex_match(file, std::regex(".*\\.(dobj|obj)"))) {
-			continue;
-		}
+	std::cout << "Loading: " << (dir + file) << std::endl;
 
-		std::cout << "Loading: " << (dir + file) << std::endl;
+	fb.open((dir + file), std::ios::in);
 
-		fb.open((dir + file), std::ios::in);
+	if (fb.is_open()) {
+		std::string ObjectName = file; // Save Object Name
 
-		if (fb.is_open()) {
-			std::string ObjectName = file; // Save Object Name
+		// Initialise file buffers
+		std::string LineBuf;
+		std::stringstream ss;
+		std::string Unit;
 
-			// Initialise file buffers
-			std::string LineBuf;
-			std::stringstream ss;
-			std::string Unit;
+		CoordinateBuffer = new coordinates;
+		CoordinateBuffer->VertContainer = new std::vector<GLfloat>;
+		CoordinateBuffer->Name = ObjectName;
 
-			CoordinateBuffer = new coordinates;
-			CoordinateBuffer->VertContainer = new std::vector<GLfloat>;
-			CoordinateBuffer->Name = ObjectName;
+		ElementBuffer = new elements;
+		ElementBuffer->ElemContainer = new std::vector<GLuint>;
+		ElementBuffer->Name = ObjectName;
 
-			ElementBuffer = new elements;
-			ElementBuffer->ElemContainer = new std::vector<GLuint>;
-			ElementBuffer->Name = ObjectName;
+		while (std::getline(fb, LineBuf)) {
+			// We want to easily break this up so turn the line into a string stream
+			ss.str(LineBuf);
 
-			while (std::getline(fb, LineBuf)) {
-				// We want to easily break this up so turn the line into a string stream
-				ss.str(LineBuf);
-
-				switch (LineBuf[0])
-				{
-				case 'v':
-					// While this is small bit of code; it is used twice (or more) maybe move it into helper function?
-					// TODO: func to break ss into values and push into vector. IN (SS, *Vector, TYPE?), OUT Void
-					while (std::getline(ss, Unit, ' ')) {
-						if (!(isalpha(Unit[0]) || Unit.size() == 0)) { 
-							CoordinateBuffer->VertContainer->push_back(GLfloat(std::stof(Unit)));
-						}
+			switch (LineBuf[0])
+			{
+			case 'v':
+				// While this is small bit of code; it is used twice (or more) maybe move it into helper function?
+				// TODO: func to break ss into values and push into vector. IN (SS, *Vector, TYPE?), OUT Void
+				while (std::getline(ss, Unit, ' ')) {
+					if (!(isalpha(Unit[0]) || Unit.size() == 0)) { 
+						CoordinateBuffer->VertContainer->push_back(GLfloat(std::stof(Unit)));
 					}
-					break;
-				case 'p':
-					while (std::getline(ss, Unit, ' ')) {
-						if (!isalpha((Unit[0]))) {
-							ElementBuffer->ElemContainer->push_back(GLuint(std::stoi(Unit)));
-						}
-					}
-					break;
-				default:
-					break;
 				}
-				// You always need to clear stringstream: gets rid of all data and resets the getline method
-				ss.clear();
+				break;
+			case 'p':
+				while (std::getline(ss, Unit, ' ')) {
+					if (!isalpha((Unit[0]))) {
+						ElementBuffer->ElemContainer->push_back(GLuint(std::stoi(Unit)));
+					}
+				}
+				break;
+			default:
+				break;
 			}
+			// You always need to clear stringstream: gets rid of all data and resets the getline method
+			ss.clear();
+		}
 
-			CoordinateBuffer->VertData = CoordinateBuffer->VertContainer->data();
-			CoordinateBuffer->VertSize = CoordinateBuffer->VertContainer->size();
+		CoordinateBuffer->VertData = CoordinateBuffer->VertContainer->data();
+		CoordinateBuffer->VertSize = CoordinateBuffer->VertContainer->size();
 
-			ElementBuffer->ElemData = ElementBuffer->ElemContainer->data();
-			ElementBuffer->ElemSize = ElementBuffer->ElemContainer->size();
+		ElementBuffer->ElemData = ElementBuffer->ElemContainer->data();
+		ElementBuffer->ElemSize = ElementBuffer->ElemContainer->size();
 			
-			LoadedVertices->push_back(CoordinateBuffer);
-			LoadedElements->push_back(ElementBuffer);
-			CoordinateBuffer = nullptr;
-			ElementBuffer = nullptr;
-		}
-		else {
-			std::cout << "Error: " << file << " failed to open" << std::endl;
-		}
+		LoadedVertices->push_back(CoordinateBuffer);
+		LoadedElements->push_back(ElementBuffer);
+		CoordinateBuffer = nullptr;
+		ElementBuffer = nullptr;
+	}
+	else {
+		std::cout << "Error: " << file << " failed to open" << std::endl;
+	}
 		
 
 
-		fb.close();
-
-	}
+	fb.close();
 
 	Coords = LoadedVertices;
 	Elems = LoadedElements;

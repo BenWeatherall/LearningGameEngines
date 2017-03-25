@@ -111,6 +111,9 @@ void system_init()
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
+	// Need to shift Key callback into it's own class
+	// Wish to extend into a state machine and have the ability to add or remove keybindings on the fly
+
 	// When user presses the escape key, we set the windowShouldClose property to true,
 	// closing the application
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
