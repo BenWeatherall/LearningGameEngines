@@ -1,17 +1,8 @@
 #include "Scene.h"
 
-Scene::Scene(std::string SceneFile)
+Scene::Scene()
 {
-	// Initialise Helper Objects
-	ShaderLoader shader_loader();
-	StaticMeshLoader static_loader();
-
-	// Initialise Scene Containers
 	statics = new std::vector<StaticMesh*>;
-
-	// Load Scene file
-	// SceneLoader scene_loader(SceneFile, this);
-
 }
 
 Scene::~Scene()

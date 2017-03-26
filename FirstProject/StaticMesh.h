@@ -4,9 +4,6 @@
 #include <iostream>
 #include <glm\glm.hpp>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
 #include "ShaderLoader.h"
 #include "StaticMeshLoader.h"
 

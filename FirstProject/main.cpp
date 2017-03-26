@@ -23,19 +23,24 @@
 
 #include "Seconds_Per_Frame_Counter.h"	// Handy way to check performance
 #include "Camera.h"						// Our game camera class
-// #include "Scene.h"						// Our game scene component
+#include "SceneLoader.h"
 
 // Window Dimensions
 const GLuint WIDTH = 1024, HEIGHT = 768;
 
-// Function Prototypes
-void system_init();
+
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
 int main()
 {
-	system_init();
+	// Init GLFW
+	glfwInit();
+	// Set GLFW req options
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
 	// Create window
 	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Complex Mesh Project", nullptr, nullptr); // Window 1
@@ -49,9 +54,19 @@ int main()
 	// I.E This is where the following actions shall occur
 	glfwMakeContextCurrent(window);
 
+	// Initialise GLEW
+	glewExperimental = GL_TRUE;
+
+	if (glewInit() != GLEW_OK)
+	{
+		std::cout << "Failed to initialise GLEW" << std::endl;
+		exit(-1);
+	}
+
 	// Set required callbacks: Guessing this becomes a large switch which will then be converted into a hash (after all you always want rebindable keys!)
 	// Following from that; I wonder how one does context... State machine?
 	glfwSetKeyCallback(window, key_callback);
+
 
 	// Set up viewport
 	int width, height;
@@ -62,7 +77,9 @@ int main()
 	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 
 	// Initial Scene
-	// Scene* currentLevel = new Scene("./Scenes/Level_01.scene");
+
+	Scene* currentLevel = new Scene();
+	SceneLoader load_scene("./Scenes/Level_01.scene", currentLevel);
 
 	// Initialise Seconds per Frame counter
 	SPF_Counter spf_report = SPF_Counter();
@@ -73,7 +90,7 @@ int main()
 		// Show current time per frame
 		spf_report.tick();
 		
-		// currentLevel->tick(spf_report.delta());
+		currentLevel->tick(spf_report.delta());
 
 		// Check and call events
 		glfwPollEvents();
@@ -81,7 +98,7 @@ int main()
 		// Rendering Commands here
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// currentLevel->draw();
+		currentLevel->draw();
 
 		// Swap Buffers
 		glfwSwapBuffers(window);
@@ -91,24 +108,6 @@ int main()
 	return 0;
 }
 
-void system_init()
-{
-	// Init GLFW
-	glfwInit();
-	// Set GLFW req options
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-
-	// Initialise GLEW
-	glewExperimental = GL_TRUE;
-	if (glewInit() != GLEW_OK)
-	{
-		std::cout << "Failed to initialise GLEW" << std::endl;
-		exit(-1);
-	}
-}
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {

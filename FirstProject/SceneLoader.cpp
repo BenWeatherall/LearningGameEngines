@@ -1,8 +1,12 @@
 #include "SceneLoader.h"
 
-SceneLoader::SceneLoader(std::string SceneFile, Scene* Scene)
+SceneLoader::SceneLoader(std::string SceneFile, Scene* loading_scene)
 {
-
+	this->scene = loading_scene;
+	// Initialise Helper Objects
+	ShaderLoader shader_loader();
+	StaticMeshLoader static_loader();
+	
 	std::ifstream fb; // FileBuffer
 
 	std::cout << "Loading: " << (SceneFile) << std::endl;
@@ -80,6 +84,7 @@ bool SceneLoader::BuildLights(std::ifstream* fb, std::string LineBuf)
 bool SceneLoader::BuildSceneName(std::ifstream* fb, std::string LineBuf)
 {
 	std::getline(*fb, LineBuf);
+	std::cout << LineBuf << ":" << this->scene << std::endl;
 	this->scene->scene_name = LineBuf;
 	return true;
 }

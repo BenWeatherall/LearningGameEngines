@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "Scene.h"
+#include "StaticMesh.h"
 
 class SceneLoader
 {

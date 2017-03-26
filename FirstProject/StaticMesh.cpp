@@ -1,5 +1,8 @@
 #include "StaticMesh.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 StaticMesh::StaticMesh(	std::string model_file, 
 						std::vector<std::string> texture_files, 
 						std::vector<std::string> shader_filenames, 
@@ -57,13 +60,17 @@ void StaticMesh::build_texture(std::string texture_file)
 	// Load, create texture and generate mipmaps
 	int width, height, bpp;
 
-	unsigned char* image = stbi_load(texture_file.c_str(), &width, &height, &bpp, 0);
-
+	unsigned char* image = stbi_load(texture_file.c_str(), &width, &height, &bpp, STBI_rgb);
+	/*
+	unsigned char* image = NULL;
+	width = 0;
+	height = 0;
+	*/
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 
 	glGenerateMipmap(GL_TEXTURE_2D);
 
-	stbi_image_free(image);
+	// stbi_image_free(image);
 
 	glBindTexture(GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
 

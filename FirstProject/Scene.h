@@ -13,13 +13,12 @@
 #include<vector>
 
 #include "StaticMesh.h"
-// #include "SceneLoader.h"
 
 class Scene {
 public:
 	friend class SceneLoader;
 
-	Scene(std::string scene_file);
+	Scene();
 	~Scene();
 	
 	bool attachStatic(std::string);
