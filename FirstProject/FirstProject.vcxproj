@@ -121,9 +121,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Actor.cpp" />
+    <ClCompile Include="ComplexMesh.cpp" />
     <ClCompile Include="File_IO.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="SceneLoader.cpp" />
     <ClCompile Include="Seconds_Per_Frame_Counter.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="StaticMesh.cpp" />
@@ -135,11 +138,13 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ComplexMesh.h" />
     <ClInclude Include="File_IO.h" />
+    <ClInclude Include="SceneLoader.h" />
     <ClInclude Include="Seconds_Per_Frame_Counter.h" />
     <ClInclude Include="StaticMesh.h" />
     <ClInclude Include="StaticMeshLoader.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="ShaderLoader.h" />
+    <ClInclude Include="stb_image.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

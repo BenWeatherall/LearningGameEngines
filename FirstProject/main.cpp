@@ -23,7 +23,7 @@
 
 #include "Seconds_Per_Frame_Counter.h"	// Handy way to check performance
 #include "Camera.h"						// Our game camera class
-#include "Scene.h"						// Our game scene component
+// #include "Scene.h"						// Our game scene component
 
 // Window Dimensions
 const GLuint WIDTH = 1024, HEIGHT = 768;
@@ -58,9 +58,11 @@ int main()
 	glfwGetFramebufferSize(window, &width, &height);
 	glViewport(0, 0, width, height);
 
+	// Clear Color
+	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 
-	Scene* currentLevel = new Scene("./Scenes/Level_01.scene");
-
+	// Initial Scene
+	// Scene* currentLevel = new Scene("./Scenes/Level_01.scene");
 
 	// Initialise Seconds per Frame counter
 	SPF_Counter spf_report = SPF_Counter();
@@ -71,16 +73,15 @@ int main()
 		// Show current time per frame
 		spf_report.tick();
 		
-		currentLevel->tick(spf_report.delta());
+		// currentLevel->tick(spf_report.delta());
 
 		// Check and call events
 		glfwPollEvents();
 
 		// Rendering Commands here
-		glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		currentLevel->draw();
+		// currentLevel->draw();
 
 		// Swap Buffers
 		glfwSwapBuffers(window);

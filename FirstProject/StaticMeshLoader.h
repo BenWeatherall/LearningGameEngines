@@ -2,7 +2,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 /* Strongly influenced by http://www.opengl-tutorial.org/beginners-tutorials/tutorial-7-model-loading/
 */
-
 #include <cctype>
 #include <iostream>
 #include <fstream>
@@ -10,10 +9,9 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <map>
 
 #include "File_IO.h"
-#include "ShaderLoader.h"
-#include "StaticMesh.h"
 
 // GLEW
 #define GLEW_STATIC
