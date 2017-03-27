@@ -26,7 +26,7 @@ struct VertexObjects {
 	GLuint* VBO;
 };
 
-class StaticMeshLoader {
+class StaticMeshLoader{
 public:
 	StaticMeshLoader();
 	~StaticMeshLoader();

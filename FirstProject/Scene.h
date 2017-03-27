@@ -12,7 +12,8 @@
 #include<string>
 #include<vector>
 
-#include "StaticMesh.h"
+#include "ComplexMesh.h"
+#include "Actor.h"
 
 class Scene {
 public:
@@ -21,9 +22,9 @@ public:
 	Scene();
 	~Scene();
 	
-	bool attachStatic(std::string);
+	bool attachStatic(std::string, ComplexMesh*);
 	
-	void removeStatic(StaticMesh*); // Chance to Complex in the long run
+	void removeStatic(std::string); // Chance to Complex in the long run
 	void draw();
 	void tick(GLfloat delta); // Update All Actors
 
@@ -35,7 +36,7 @@ public:
 	// void setSkybox(void); // Pass texture?
 private:
 	std::string scene_name;
-	std::vector<StaticMesh*>* statics;
+	std::map<std::string, ComplexMesh*>* statics;
 
 	// TODO: Create the following
 	// SkyBox

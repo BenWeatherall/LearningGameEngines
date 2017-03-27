@@ -1,2 +1,4 @@
 SceneName:
 Scene_name
+Statics:
+	Capsule_01, ./Statics/Capsule.static, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f

@@ -1,0 +1,4 @@
+Static:
+	./Obj/capsule.obj, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f
+./Textures/capsule0.jpg
+./Shaders/Static.frag,./Shaders/Static.vert

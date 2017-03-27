@@ -1,9 +1,10 @@
 #pragma once
 #include <string>
 #include <cctype>
+#include "Scene.h"
 #include "ComplexMesh.h"
 
-class Actor {
+class Actor : Scene {
 public:
 	Actor(std::string ActorDetails);
 	~Actor();
@@ -14,6 +15,5 @@ public:
 
 private:
 	//ComplexMesh*
-	ComplexMesh Components;
-
+	std::map<std::string, ComplexMesh*> Components;
 };

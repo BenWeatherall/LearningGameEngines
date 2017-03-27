@@ -3,15 +3,19 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-StaticMesh::StaticMesh(	std::string model_file, 
-						std::vector<std::string> texture_files, 
-						std::vector<std::string> shader_filenames, 
-						ShaderLoader* scene_shader_loader, StaticMeshLoader* scene_static_loader,
-						glm::vec3* rot_key, 
-						glm::vec3* loc_key )
+StaticMesh::StaticMesh(	std::string model_file, std::vector<std::string> texture_files,
+						std::vector<std::string> shader_filenames,
+						glm::vec3 scale, glm::vec3 rotation, glm::vec3 location,
+						ShaderLoader* scene_shader_loader,
+						StaticMeshLoader* scene_static_loader)
 {
-	this->rotation = rot_key;
-	this->location = loc_key;
+	this->rotation = new glm::vec3;
+	this->location = new glm::vec3;
+	this->scale = new glm::vec3;
+
+	*this->rotation = rotation;
+	*this->location = location;
+	*this->scale = scale;
 
 	this->shader_program = scene_shader_loader->build_program(shader_filenames);
 	scene_static_loader->build_static_mesh(model_file, this->VAO, this->VBO);

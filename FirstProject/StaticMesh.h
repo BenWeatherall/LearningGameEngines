@@ -7,13 +7,13 @@
 #include "ShaderLoader.h"
 #include "StaticMeshLoader.h"
 
-class StaticMesh {
+class StaticMesh : ComplexMesh {
 public:
-	StaticMesh(	std::string model_file, std::vector<std::string> texture_file, 
+	StaticMesh(	std::string model_file, std::vector<std::string> texture_files, 
 				std::vector<std::string> shader_filenames, 
-				ShaderLoader* scene_shader_loader, 
-				StaticMeshLoader* scene_static_loader,
-				glm::vec3* rot_key,	glm::vec3* loc_key);
+				glm::vec3 scale, glm::vec3 rotation,	glm::vec3 location,
+				ShaderLoader* scene_shader_loader,
+				StaticMeshLoader* scene_static_loader);
 	~StaticMesh();
 	void draw();
 
@@ -26,6 +26,7 @@ private:
 	GLuint shader_program;
 	glm::vec3* rotation;
 	glm::vec3* location;
+	glm::vec3* scale;
 
 	void build_texture(std::string texture_file);
 };
