@@ -1,4 +1,4 @@
-# GraphicsProject_01
+# Learning Game Engines : GraphicsProject_01
 
 **Standard**: C++11
 
@@ -7,6 +7,6 @@
 ## Description:
 
 Basically this will be the dumping ground of my learning how OpenGL and the graphics pipeline operates.
-I will be following https://learnopengl.com/ and adding my own pieces as I go. 
+I initially was following https://learnopengl.com/, adding my own pieces as I went, it then became the core for my graphics programming final assignment. Now the project is over I intend to revisit the program when I have spare time and slowly refactor the code into something closer to a professional game engine. 
 
-Then I'll be completely rewriting them as I realise my assumptions were incorrect!
+I expect this will be revised often and will have many bad design decisions.
